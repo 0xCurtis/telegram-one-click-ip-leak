@@ -12,17 +12,41 @@ Telegram automatically attempts to test proxy connections when a user interacts 
 
 When a user clicks on a disguised proxy link (thinking they're opening a DM with a bot or another user), their Telegram client automatically attempts to connect to the fake proxy server, revealing their real IP address.
 
+## Requirements
+
+- Python 3.x
+- `requests` library (for geolocation feature)
+
+Install dependencies:
+```bash
+pip install requests
+```
+
 ## Setup Instructions
 
 ### 1. Start the Listener Server
 
 Run the exploit script on your VPS or server:
 
+**Basic usage:**
 ```bash
 python3 exploit.py
 ```
 
+**With geolocation information:**
+```bash
+python3 exploit.py --location
+```
+
+The `--location` flag will automatically query [ip-api.com](http://ip-api.com) to retrieve detailed information about each victim's IP address, including:
+- Country, region, and city
+- Geographic coordinates (latitude/longitude)
+- ISP and organization information
+- Timezone
+
 The server will listen on `0.0.0.0:2398` by default. You can modify the `HOST` and `PORT` variables in the script if needed.
+
+**Note:** The script automatically filters duplicate IPs - each unique IP address is only logged once.
 
 ### 2. Get Your Server's Public IP
 
@@ -69,15 +93,40 @@ The connection attempt will be logged in your server console, revealing:
 - The victim's IP address
 - The source port
 - The timestamp of the connection
+- (Optional) Geolocation and ISP information if using the `--location` flag
+
+**Note:** The script automatically filters duplicate connections from the same IP address - each unique IP is only logged once to keep the output clean.
 
 ## Example Output
 
+**Basic output:**
 ```
-[+] Listening on 0.0.0.0:2398
+[+] Listening on 0.0.0.0:2398 // Note : You can also get victim position by passing the --location CLI arg
 [!] Incoming connection
     IP        : 192.168.1.100
     Port      : 54321
     Timestamp : 2024-01-15 14:30:45.123456 UTC
+```
+
+**With `--location` flag:**
+```
+[+] Listening on 0.0.0.0:2398 // Note : You can also get victim position by passing the --location CLI arg
+[!] Incoming connection
+    IP        : 192.168.1.100
+    Port      : 54321
+    Timestamp : 2024-01-15 14:30:45.123456 UTC
+    country: United States
+    countryCode: US
+    region: CA
+    regionName: California
+    city: Los Angeles
+    zip: 90001
+    lat: 34.0522
+    lon: -118.2437
+    timezone: America/Los_Angeles
+    isp: Example ISP
+    org: Example Organization
+    as: AS12345 Example ASN
 ```
 
 ## Technical Details
@@ -86,6 +135,8 @@ The connection attempt will be logged in your server console, revealing:
 - **Automatic Connection:** Telegram clients automatically test proxy connections without user confirmation
 - **One-Click:** A single click on the link is sufficient to trigger the connection
 - **Platform Specific:** Only affects Android and iOS Telegram clients
+- **Duplicate Filtering:** Each unique IP address is only logged once to prevent spam
+- **Geolocation:** Optional `--location` flag uses [ip-api.com](http://ip-api.com) to retrieve detailed information about victim IPs
 
 ## Security Implications
 
@@ -104,6 +155,7 @@ Users should:
 ## Contact
 
 You can contact me on [Telegram](https://t.me/CurtisARP)
+or join the [Telegram Group](https://t.me/CurtisCentral)
 
 ## Disclaimer
 
